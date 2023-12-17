@@ -9,26 +9,24 @@ type MessageData = {
 }
 
 const App = () => {
+    // Form fields data
     const [username, setUsername] = useState('');
     const [message, setMessage] = useState('');
+
+    const [formError, setFormError] = useState<string | null>(null);
     const [messageDataLogs, setMessageDataLogs] = useState<MessageData[] | null>(null);
     const [isConnected, setIsConnected] = useState(socket.connected);
 
     useEffect(() => {
-        console.log('here');
-
         const onConnect = () => {
-            console.log('inside connect');
             setIsConnected(true)
         }
 
         const onDisconnect = () => {
-            console.log('inside disconnect');
             setIsConnected(false)
         }
 
         const onChatMessage = (messageData: MessageData) => {
-            console.log('inside chatMessage')
             setMessageDataLogs(prevLogs => {
                 return prevLogs
                     ? [...prevLogs, messageData]
@@ -50,21 +48,22 @@ const App = () => {
     const handleUsernameSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        console.log(username);
+        if (username === "") {
+            setFormError("Username can't be empty");
+            return;
+        }
+
         socket.connect();
     }
 
     const handleMessageSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        // TODO: BrodcastMessage to all clients
         const messageData: MessageData = {
             username,
             message
         }
 
-        // Sending message from client
-        console.log('here in client before', messageData);
         socket.emit('chatMessage', messageData);
 
         setMessage('');
@@ -72,7 +71,6 @@ const App = () => {
 
     return (
         <div className='relative h-screen'>
-            {/* FIX: Proper scroll on message */}
             {!isConnected && (
                 <form onSubmit={handleUsernameSubmit}>
                     <input
@@ -82,9 +80,14 @@ const App = () => {
                         onChange={e => setUsername(e.target.value)}
                         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-gray-800 text-sm px-3 py-2 color-white outline-none"
                     />
+
+                    {formError && (
+                        <h1 className='absolute left-1/2 top-1/2 -translate-x-1/2 translate-y-full text-sm text-red-500/80 mt-2'>{formError}</h1>
+                    )}
                 </form>
             )}
 
+            {/* FIX: Proper scroll on message */}
             {isConnected && (
                 <>
                     <div className='p-5 flex flex-col gap-3'>
