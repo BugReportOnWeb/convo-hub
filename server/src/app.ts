@@ -8,7 +8,11 @@ const PORT = process.env.PORT;
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+    cors: { 
+        origin: 'http://localhost:5173'
+    }
+});
 
 app.get('/', (_req, res) => {
     const response = { message: "Hello World!" };
@@ -18,8 +22,9 @@ app.get('/', (_req, res) => {
 io.on('connection', socket => {
     console.log(`${socket.id} connected`);
 
-    socket.on('chatMessage', message => {
-        console.log(message);
+    socket.on('chatMessage', messageData => {
+        console.log('here in server', messageData);
+        io.emit('chatMessage', messageData);
     })
     
     socket.on('disconnect', () => {
