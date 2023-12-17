@@ -23,7 +23,6 @@ io.on('connection', socket => {
     console.log(`${socket.id} connected`);
 
     socket.on('chatMessage', messageData => {
-        console.log('here in server', messageData);
         io.emit('chatMessage', messageData);
     })
     
