@@ -1,4 +1,6 @@
 import { FormEvent, useState } from "react";
+import MessageBubble from "./components/MessageBubble";
+import MessageForm from "./components/MessageForm";
 
 const App = () => {
     const [message, setMessage] = useState('');
@@ -7,7 +9,7 @@ const App = () => {
     const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        // Send message somewhere
+        // TODO: BrodcastMessage to all clients
         console.log(message);
         setMessageLogs(prevMessageLog => {
             return [...prevMessageLog, message];
@@ -18,24 +20,18 @@ const App = () => {
 
     return (
         <div className='relative h-screen'>
-            <div className='border border-red-500'>
+            {/* FIX: Proper scroll on message */}
+            <div className='p-5 flex flex-col gap-3'>
                 {messageLogs.map((message, index) => (
-                    <div key={index} className=''>
-                        {message}
-                    </div>
+                    <MessageBubble key={index} message={message} />
                 ))}
             </div>
 
-            <form onSubmit={handleSubmit} className='absolute bottom-0 left-0 right-0 w-full flex gap-3 py-3 px-5'>
-                <input
-                    className='flex-grow rounded-lg bg-gray-800 text-sm px-3 py-2 color-white outline-none'
-                    type='text'
-                    autoComplete="false"
-                    value={message}
-                    onChange={e => setMessage(e.target.value)}
-                />
-                <button className='px-3 py-2 bg-gray-800 rounded-lg text-sm'>Send</button>
-            </form>
+            <MessageForm
+                message={message}
+                setMessage={setMessage}
+                handleSubmit={handleSubmit}
+            />
         </div>
     )
 }
