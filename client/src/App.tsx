@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import MessageBubble from "./components/MessageBubble";
 import MessageForm from "./components/MessageForm";
 import { socket } from "./socket";
@@ -16,6 +16,7 @@ const App = () => {
     const [formError, setFormError] = useState<string | null>(null);
     const [messageDataLogs, setMessageDataLogs] = useState<MessageData[] | null>(null);
     const [isConnected, setIsConnected] = useState(socket.connected);
+    const messageLogsRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         const onConnect = () => {
@@ -44,6 +45,13 @@ const App = () => {
             socket.off('chatMessage');
         }
     }, []);
+
+    useEffect(() => {
+        messageLogsRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'end'
+        });
+    }, [messageDataLogs])
 
     const handleUsernameSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -90,7 +98,7 @@ const App = () => {
             {/* FIX: Proper scroll on message */}
             {isConnected && (
                 <>
-                    <div className='p-5 flex flex-col gap-3'>
+                    <div className='pt-5 px-3 pb-16 flex flex-col gap-3' ref={messageLogsRef}>
                         {messageDataLogs && messageDataLogs.map((messageData, index) => (
                             <MessageBubble key={index} messageData={messageData} username={username} />
                         ))}
