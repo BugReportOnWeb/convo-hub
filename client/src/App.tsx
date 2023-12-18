@@ -28,14 +28,11 @@ const App = () => {
     }, [messageDataLogs])
 
     useEffect(() => {
-        const onConnect = () => {
-            setIsConnected(true)
-        }
+        // Socket connection
+        const onConnect = () => setIsConnected(true);
+        const onDisconnect = () => setIsConnected(false);
 
-        const onDisconnect = () => {
-            setIsConnected(false)
-        }
-
+        // Other socket events
         const onChatMessage = (messageData: MessageData) => {
             setMessageDataLogs(prevLogs => {
                 return prevLogs
@@ -74,18 +71,16 @@ const App = () => {
 
         socket.on('connect', onConnect);
         socket.on('disconnect', onDisconnect);
-        socket.on('chatMessage', onChatMessage);
 
+        socket.on('chatMessage', onChatMessage);
         socket.on('userJoined', onUserJoined);
         socket.on('userLeft', onUserLeft);
 
         return () => {
-            socket.emit('userLeft', username);
-
             socket.off('connect');
             socket.off('disconnect');
-            socket.off('chatMessage');
 
+            socket.off('chatMessage');
             socket.off('userJoined');
             socket.off('userLeft');
         }
