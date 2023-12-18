@@ -20,22 +20,22 @@ app.get('/', (_req, res) => {
 })
 
 io.on('connection', socket => {
+    let currUsername = '';
+
     socket.on('userJoined', username => {
         console.log(`${socket.id} joined`);
-        io.emit('userJoined', username);
+
+        currUsername = username;
+        io.emit('userJoined', currUsername);
     })
 
     socket.on('chatMessage', messageData => {
         io.emit('chatMessage', messageData);
     })
 
-    socket.on('userLeft', username => {
-        console.log(`${socket.id} disconnected here on userLeft`);
-        io.emit('userLeft', username);
-    })
-
     socket.on('disconnect', () => {
         console.log(`${socket.id} disconnected`);
+        io.emit('userLeft', currUsername);
     })
 })
 
