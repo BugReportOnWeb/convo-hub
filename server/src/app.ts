@@ -9,7 +9,7 @@ const PORT = process.env.PORT;
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
-    cors: { 
+    cors: {
         origin: 'http://localhost:5173'
     }
 });
@@ -20,12 +20,20 @@ app.get('/', (_req, res) => {
 })
 
 io.on('connection', socket => {
-    console.log(`${socket.id} connected`);
+    socket.on('userJoined', username => {
+        console.log(`${socket.id} joined`);
+        io.emit('userJoined', username);
+    })
 
     socket.on('chatMessage', messageData => {
         io.emit('chatMessage', messageData);
     })
-    
+
+    socket.on('userLeft', username => {
+        console.log(`${socket.id} disconnected here on userLeft`);
+        io.emit('userLeft', username);
+    })
+
     socket.on('disconnect', () => {
         console.log(`${socket.id} disconnected`);
     })
