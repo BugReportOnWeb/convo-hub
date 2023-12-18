@@ -4,6 +4,7 @@ import MessageForm from "./components/MessageForm";
 import { socket } from "./socket";
 
 type MessageData = {
+    type: 'message-bubble' | 'message-log';
     username: string;
     message: string;
 }
@@ -13,10 +14,18 @@ const App = () => {
     const [username, setUsername] = useState('');
     const [message, setMessage] = useState('');
 
+    // Other stuff
     const [formError, setFormError] = useState<string | null>(null);
-    const [messageDataLogs, setMessageDataLogs] = useState<MessageData[] | null>(null);
     const [isConnected, setIsConnected] = useState(socket.connected);
+    const [messageDataLogs, setMessageDataLogs] = useState<MessageData[] | null>(null);
     const messageLogsRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        messageLogsRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'end'
+        });
+    }, [messageDataLogs])
 
     useEffect(() => {
         const onConnect = () => {
@@ -35,23 +44,52 @@ const App = () => {
             })
         }
 
+        const onUserJoined = (username: string) => {
+            const messageDataLog: MessageData = {
+                type: 'message-log',
+                username,
+                message: 'joined the chat!'
+            }
+
+            setMessageDataLogs(prevMessageDataLogs => {
+                return prevMessageDataLogs
+                    ? [...prevMessageDataLogs, messageDataLog]
+                    : [messageDataLog]
+            });
+        }
+
+        const onUserLeft = (username: string) => {
+            const messageDataLog: MessageData = {
+                type: 'message-log',
+                username,
+                message: 'left the chat!'
+            }
+
+            setMessageDataLogs(prevMessageDataLogs => {
+                return prevMessageDataLogs
+                    ? [...prevMessageDataLogs, messageDataLog]
+                    : [messageDataLog]
+            });
+        }
+
         socket.on('connect', onConnect);
         socket.on('disconnect', onDisconnect);
         socket.on('chatMessage', onChatMessage);
 
+        socket.on('userJoined', onUserJoined);
+        socket.on('userLeft', onUserLeft);
+
         return () => {
+            socket.emit('userLeft', username);
+
             socket.off('connect');
             socket.off('disconnect');
             socket.off('chatMessage');
+
+            socket.off('userJoined');
+            socket.off('userLeft');
         }
     }, []);
-
-    useEffect(() => {
-        messageLogsRef.current?.scrollIntoView({
-            behavior: 'smooth',
-            block: 'end'
-        });
-    }, [messageDataLogs])
 
     const handleUsernameSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -61,13 +99,14 @@ const App = () => {
             return;
         }
 
-        socket.connect();
+        socket.emit('userJoined', username).connect();
     }
 
     const handleMessageSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         const messageData: MessageData = {
+            type: 'message-bubble',
             username,
             message
         }
