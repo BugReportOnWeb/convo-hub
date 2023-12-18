@@ -1,9 +1,7 @@
+import { MessageData } from "../types/message";
+
 type MessageBubbleProps = {
-    messageData: {
-        type: 'message-bubble' | 'message-log';
-        username: string;
-        message: string;
-    },
+    messageData: MessageData;
     username: string;
 }
 

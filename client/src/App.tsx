@@ -1,13 +1,13 @@
+// Core
 import { FormEvent, useEffect, useRef, useState } from "react";
-import MessageBubble from "./components/MessageBubble";
-import MessageForm from "./components/MessageForm";
 import { socket } from "./socket";
 
-type MessageData = {
-    type: 'message-bubble' | 'message-log';
-    username: string;
-    message: string;
-}
+// Types
+import { MessageData } from "./types/message";
+
+// Components
+import MessageBubble from "./components/MessageBubble";
+import MessageForm from "./components/MessageForm";
 
 const App = () => {
     // Form fields data
@@ -129,7 +129,6 @@ const App = () => {
                 </form>
             )}
 
-            {/* FIX: Proper scroll on message */}
             {isConnected && (
                 <>
                     <div className='pt-5 px-3 pb-16 flex flex-col gap-3' ref={messageLogsRef}>
