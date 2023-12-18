@@ -1,5 +1,5 @@
 {
-  "name": "another_socket_testing",
+  "name": "server",
   "version": "1.0.0",
   "description": "",
   "main": "src/app.ts",
