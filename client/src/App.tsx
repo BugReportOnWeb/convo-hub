@@ -18,6 +18,8 @@ const App = () => {
     const [formError, setFormError] = useState<string | null>(null);
     const [isConnected, setIsConnected] = useState(socket.connected);
     const [messageDataLogs, setMessageDataLogs] = useState<MessageData[] | null>(null);
+    const [joinedUsers, setJoinedusers] = useState<string[]>([]);
+
     const messageLogsRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -42,6 +44,12 @@ const App = () => {
         }
 
         const onUserJoined = (username: string) => {
+            setJoinedusers(prevJoinedUsers => {
+                return prevJoinedUsers
+                    ? [...prevJoinedUsers, username]
+                    : [username]
+            })
+
             const messageDataLog: MessageData = {
                 type: 'message-log',
                 username,
@@ -56,6 +64,12 @@ const App = () => {
         }
 
         const onUserLeft = (username: string) => {
+            setJoinedusers(prevJoinedUsers => {
+                return prevJoinedUsers
+                    ? prevJoinedUsers.filter(joinedUsername => joinedUsername !== username)
+                    : []
+            })
+
             const messageDataLog: MessageData = {
                 type: 'message-log',
                 username,
@@ -94,6 +108,19 @@ const App = () => {
             return;
         }
 
+        // TODO: Doesn't work as meant to be
+        // New user's client would now have details of old users' client
+        const joinedUser = joinedUsers.find(joinedUsername => joinedUsername === username);
+        if (joinedUser) {
+            setFormError("User already in the chat");
+            return;
+        }
+
+        if (username.length == 1) {
+            setFormError("Username must be > 1 length");
+            return;
+        }
+
         socket.emit('userJoined', username).connect();
     }
 
@@ -124,7 +151,7 @@ const App = () => {
                     />
 
                     {formError && (
-                        <h1 className='absolute left-1/2 top-1/2 -translate-x-1/2 translate-y-full text-sm text-red-500/80 mt-2'>{formError}</h1>
+                        <h1 className='absolute w-fit left-1/2 top-1/2 -translate-x-1/2 translate-y-full text-[0.8125rem] text-red-500/80 mt-2'>{formError}</h1>
                     )}
                 </form>
             )}
@@ -133,7 +160,12 @@ const App = () => {
                 <>
                     <div className='pt-5 px-3 pb-16 flex flex-col gap-3' ref={messageLogsRef}>
                         {messageDataLogs && messageDataLogs.map((messageData, index) => (
-                            <MessageBubble key={index} messageData={messageData} username={username} />
+                            <MessageBubble
+                                key={index}
+                                messageData={messageData}
+                                messageDataLogs={messageDataLogs}
+                                username={username}
+                            />
                         ))}
                     </div>
 
