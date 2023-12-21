@@ -19,7 +19,9 @@ npm install
 
 3. Create a .env file in the server directory and set the PORT variable:
 ```env
-PORT=4000
+SERVER_PORT=4000
+CLIENT_PORT=5173
+HOST=localhost
 ```
 
 4. Start the server:

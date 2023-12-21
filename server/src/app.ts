@@ -4,13 +4,17 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 
 dotenv.config();
-const PORT = process.env.PORT;
+const HOST = process.env.HOST;
+const CLIENT_PORT = process.env.CLIENT_PORT
+const SERVER_PORT = process.env.SERVER_PORT
+    ? +process.env.SERVER_PORT
+    : undefined
 
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:5173'
+        origin: `http://${HOST}:${CLIENT_PORT}`
     }
 });
 
@@ -39,7 +43,7 @@ io.on('connection', socket => {
     })
 })
 
-server.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
-})
+server.listen(SERVER_PORT, HOST, () => {
+    console.log(`Server listening on http://${HOST}:${SERVER_PORT}`);
+});
 
