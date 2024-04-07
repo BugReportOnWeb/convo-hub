@@ -2,6 +2,14 @@ import express from 'express';
 import * as dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import cors from 'cors';
+import {
+    addUserQuery,
+    removeUserQuery,
+    createUserTable
+} from './db/query';
+import { userRouter } from './routes/user';
+import { User } from './types/user';
 
 dotenv.config();
 
@@ -17,28 +25,47 @@ const io = new Server(server, {
     }
 });
 
-app.get('/', (_req, res) => {
-    const response = { message: "Hello World!" };
+app.use(cors());
+app.use('/v1/users', userRouter);
+
+app.get('/health', (_req, res) => {
+    const response = { health: "OK" };
     res.send(response);
 })
 
 io.on('connection', socket => {
     let currUsername = '';
 
-    socket.on('userJoined', username => {
+    socket.on('userJoined', async (username) => {
         console.log(`${socket.id} joined`);
+        const newUser: User = { id: socket.id, username };
 
-        currUsername = username;
-        io.emit('userJoined', currUsername);
+        try {
+            await createUserTable();
+            await addUserQuery(newUser);
+
+            currUsername = username;
+            io.emit('userJoined', currUsername);
+        } catch (error) {
+            console.error(error);
+        }
+
     })
 
     socket.on('chatMessage', messageData => {
         io.emit('chatMessage', messageData);
     })
 
-    socket.on('disconnect', () => {
-        console.log(`${socket.id} disconnected`);
-        io.emit('userLeft', currUsername);
+    socket.on('disconnect', async () => {
+        try {
+            await createUserTable();
+            await removeUserQuery(socket.id);
+
+            console.log(`${socket.id} disconnected`);
+            io.emit('userLeft', currUsername);
+        } catch (error) {
+            console.error(error);
+        }
     })
 })
 

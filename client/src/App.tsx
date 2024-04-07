@@ -20,6 +20,8 @@ const App = () => {
     const [messageDataLogs, setMessageDataLogs] = useState<MessageData[] | null>(null);
     const [joinedUsers, setJoinedusers] = useState<string[]>([]);
 
+    console.log(joinedUsers);
+
     const messageLogsRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -100,19 +102,11 @@ const App = () => {
         }
     }, []);
 
-    const handleUsernameSubmit = (event: FormEvent<HTMLFormElement>) => {
+    const handleUsernameSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if (username === "") {
-            setFormError("Username can't be empty");
-            return;
-        }
-
-        // TODO: Doesn't work as meant to be
-        // New user's client would now have details of old users' client
-        const joinedUser = joinedUsers.find(joinedUsername => joinedUsername === username);
-        if (joinedUser) {
-            setFormError("User already in the chat");
+            setFormError("Username can't be empty.");
             return;
         }
 
@@ -121,7 +115,31 @@ const App = () => {
             return;
         }
 
-        socket.emit('userJoined', username).connect();
+        try {
+            const res = await fetch(`http://localhost:4000/v1/users/${username}`);
+            const data = await res.json();
+
+            // CASE - User exists
+            if (res.ok) {
+                setFormError(`${username} already in chat.`);
+            }
+
+            // CASE - User dones't exist
+            if (res.status == 404) {
+                socket.emit('userJoined', username).connect();
+                return;
+            }
+
+            // CASE - Some other server error
+            if (!res.ok) {
+                throw data.error;
+            }
+
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error(error.message);
+            }
+        }
     }
 
     const handleMessageSubmit = (event: FormEvent<HTMLFormElement>) => {
