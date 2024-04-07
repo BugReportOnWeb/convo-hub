@@ -1,8 +1,11 @@
 import express from 'express';
-import * as dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
+
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import {
     addUserQuery,
     removeUserQuery,
@@ -10,8 +13,6 @@ import {
 } from './db/query';
 import { userRouter } from './routes/user';
 import { User } from './types/user';
-
-dotenv.config();
 
 const HOST = process.env.HOST ?? 'localhost';
 const CLIENT_PORT = process.env.CLIENT_PORT ?? 5173;
