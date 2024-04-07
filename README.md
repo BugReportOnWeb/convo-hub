@@ -17,11 +17,16 @@ cd server
 npm install
 ```
 
-3. Create a .env file in the server directory and set the PORT variable:
+3. Create a `.env` file in the server directory and set the PORT variable:
 ```env
-SERVER_PORT=4000
 CLIENT_PORT=5173
+SERVER_PORT=4000
 HOST=localhost
+
+POSTGRES_USER=<your-postgres-user>
+POSTGRES_PASS=<your-postgres-password>
+POSTGRES_DB=convohub
+POSTGRES_PORT=5432
 ```
 
 4. Start the server:
@@ -49,4 +54,4 @@ Contributions are welcome! Fork the repository, make your changes, and submit a 
 
 ## License
 
-This project is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html)
+This project is licensed under the [GNU General Public License v3.0](LICENSE.md)
