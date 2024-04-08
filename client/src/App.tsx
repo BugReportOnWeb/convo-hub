@@ -18,9 +18,6 @@ const App = () => {
     const [formError, setFormError] = useState<string | null>(null);
     const [isConnected, setIsConnected] = useState(socket.connected);
     const [messageDataLogs, setMessageDataLogs] = useState<MessageData[] | null>(null);
-    const [joinedUsers, setJoinedusers] = useState<string[]>([]);
-
-    console.log(joinedUsers);
 
     const messageLogsRef = useRef<HTMLDivElement | null>(null);
 
@@ -46,12 +43,6 @@ const App = () => {
         }
 
         const onUserJoined = (username: string) => {
-            setJoinedusers(prevJoinedUsers => {
-                return prevJoinedUsers
-                    ? [...prevJoinedUsers, username]
-                    : [username]
-            })
-
             const messageDataLog: MessageData = {
                 type: 'message-log',
                 username,
@@ -66,12 +57,6 @@ const App = () => {
         }
 
         const onUserLeft = (username: string) => {
-            setJoinedusers(prevJoinedUsers => {
-                return prevJoinedUsers
-                    ? prevJoinedUsers.filter(joinedUsername => joinedUsername !== username)
-                    : []
-            })
-
             const messageDataLog: MessageData = {
                 type: 'message-log',
                 username,
