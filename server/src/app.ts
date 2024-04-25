@@ -14,6 +14,8 @@ import {
 import { userRouter } from './routes/user';
 import { User } from './types/user';
 
+// testing commit
+
 const HOST = process.env.HOST ?? 'localhost';
 const CLIENT_PORT = process.env.CLIENT_PORT ?? 5173;
 const SERVER_PORT = process.env.SERVER_PORT ?? 4000;
